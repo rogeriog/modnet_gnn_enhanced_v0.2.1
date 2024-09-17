@@ -80,19 +80,28 @@ class MODFeaturizer(abc.ABC):
             The featurized DataFrame.
 
         """
-        df_composition = pd.DataFrame([])
+        df_composition = df ## empty dataframes would cause issues with join
         if self.composition_featurizers or self.oxid_composition_featurizers:
             df_composition = self.featurize_composition(df)
 
-        df_structure = pd.DataFrame([])
-        if self.structure_featurizers:
-            df_structure = self.featurize_structure(df)
-
-        df_site = pd.DataFrame([])
+        # swapped site and structure featurizers for memory handling with GNN featurizers
+        # also initialize df_structure and df_site to df to avoid empty dataframes join problem
+        df_site = df
         if self.site_featurizers:
             df_site = self.featurize_site(df)
 
-        return df_composition.join(df_structure.join(df_site, lsuffix="l"), rsuffix="r")
+        df_structure = df
+        if self.structure_featurizers:
+            df_structure = self.featurize_structure(df)
+        
+        # join the dataframes, removing the additional structure columns
+        # i dont know if this setup still works solely for composition
+        # I should rewrite to avoid the join problem in a more elegant way
+        final_df = df_composition.join(df_structure.join(df_site, lsuffix="l"), rsuffix="r")
+        columns_to_drop = ['structure', 'structurel', 'structurer']
+        final_df = final_df.drop(columns=columns_to_drop, errors='ignore')
+
+        return final_df
 
     def _fit_apply_featurizers(
         self,
@@ -207,10 +216,10 @@ class MODFeaturizer(abc.ABC):
             if getattr(self, "fast_oxid", False):
                 df = CompositionToOxidComposition(
                     all_oxi_states=False, max_sites=-1
-                ).featurize_dataframe(df, "composition")
+                ).featurize_dataframe(df, "composition", ignore_errors=True) # not sure if ignore_errors is still necessary
             else:
                 df = CompositionToOxidComposition().featurize_dataframe(
-                    df, "composition"
+                    df, "composition", ignore_errors=True # not sure if ignore_errors is still necessary
                 )
             df = self._fit_apply_featurizers(
                 df,
