@@ -25,7 +25,7 @@ class MEGNetFeaturizer:
         self.model_type = model_type
         self.parent_dir = os.path.join(os.path.dirname(__file__), os.pardir)
         self.parent_dir = os.path.abspath(self.parent_dir)
-        self.file_path = os.path.join(self.parent_dir, f'MEGNetModel__{self.model_type}.h5')        
+        self.file_path = os.path.join(self.parent_dir, f'GNN_encoders/MEGNetModel__{self.model_type}.h5')        
         self.adjacent_model_path = kwargs.get('adjacent_model_path', '.')
         if self.model_type == 'MatMinerEncoded_v1':
             # check if model file is downloaded
