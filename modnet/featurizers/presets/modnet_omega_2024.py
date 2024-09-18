@@ -98,7 +98,7 @@ class MODNetOmega2024(modnet.featurizers.MODFeaturizer):
     NOTE: The featurizer currently supports only structure inputs.
     """
 
-    def __init__(self, adjacent_model: bool = False, targets=None, structures=None, **kwargs):
+    def __init__(self, adjacent_model: bool = True, targets=None, structures=None, **kwargs):
         """Creates the featurizer and imports all featurizer functions.
 
         Parameters:
