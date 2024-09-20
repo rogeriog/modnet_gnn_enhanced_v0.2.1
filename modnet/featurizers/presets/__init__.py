@@ -7,7 +7,7 @@ __all__ = (
 from typing import Dict, Type
 from .debreuck_2020 import DeBreuck2020Featurizer, CompositionOnlyFeaturizer
 from .matminer_2023 import Matminer2023Featurizer, CompositionOnlyMatminer2023Featurizer
-from .modnet_omega_2024 import MODNetOmegaFast2024
+from .modnet_omega_2024 import MODNetOmega2024, MODNetOmegaFast2024
 from modnet.featurizers import MODFeaturizer
 
 DEFAULT_FEATURIZER: str = "Matminer2023"
@@ -18,5 +18,6 @@ FEATURIZER_PRESETS: Dict[str, Type[MODFeaturizer]] = {
     "CompositionOnly": CompositionOnlyFeaturizer,
     "Matminer2023": Matminer2023Featurizer,
     "CompositionOnlyMatminer2023": CompositionOnlyMatminer2023Featurizer,
-    "ModnetOmegaFast2024": MODNetOmegaFast2024,	
+    "MODNetOmega2024": MODNetOmega2024,
+    "MODNetOmegaFast2024": MODNetOmegaFast2024,	
 }

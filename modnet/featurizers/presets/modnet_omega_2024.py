@@ -18,14 +18,14 @@ from keras.callbacks import EarlyStopping
 from keras.models import Model
 
 ### FUNCTIONS TO GET MEGNet FEATURES
-from ..GNN_encoders.megnet_functions import get_MEGNetFeatures, get_MEGNetBaseFeatures, get_MEGNetAdjacentFeatures
+from ..gnn_encoders.megnet_functions import get_MEGNetFeatures, get_MEGNetBaseFeatures, get_MEGNetAdjacentFeatures
 
 class MEGNetFeaturizer:
     def __init__(self, model_type, **kwargs):
         self.model_type = model_type
         self.parent_dir = os.path.join(os.path.dirname(__file__), os.pardir)
         self.parent_dir = os.path.abspath(self.parent_dir)
-        self.file_path = os.path.join(self.parent_dir, f'GNN_encoders/MEGNetModel__{self.model_type}.h5')        
+        self.file_path = os.path.join(self.parent_dir, f'gnn_encoders/MEGNetModel__{self.model_type}.h5')        
         self.adjacent_model_path = kwargs.get('adjacent_model_path', '.')
         if self.model_type == 'MatMinerEncoded_v1':
             # check if model file is downloaded
@@ -338,8 +338,12 @@ class MODNetOmega2024(modnet.featurizers.MODFeaturizer):
         targets = targets.reshape(-1,1)
         scaler = MinMaxScaler()
         targets = scaler.fit_transform(targets)
+        adjacent_model_path = kwargs.get('adjacent_model_path', '.')
+        # create folder if it does not exist
+        if not os.path.exists(adjacent_model_path):
+            os.makedirs(adjacent_model_path)
         # save scaler to pickle
-        pickle.dump(scaler, open('MEGNetModel__adjacent_scaler.pkl', 'wb'))
+        pickle.dump(scaler, open(os.path.join(adjacent_model_path, 'MEGNetModel__adjacent_scaler.pkl'), 'wb'))
         print('Scaler of the targets for adjacent model saved to MEGNetModel__adjacent_scaler.pkl')
         # train a MEGNet model on the fly to predict a new set of features
         max_epochs=kwargs.get('max_epochs',100)
@@ -364,8 +368,8 @@ class MODNetOmega2024(modnet.featurizers.MODFeaturizer):
                             )
         model.train(train_structures, train_targets, validation_structures=val_structures, 
                     validation_targets=val_targets, epochs=max_epochs, save_checkpoint=False, callbacks=[early_stopping])
-        model.save(f'MEGNetModel__adjacent.h5')
-        print('MEGNet model on the fly saved to MEGNetModel__adjacent.h5')
+        model.save(os.path.join(adjacent_model_path, 'MEGNetModel__adjacent.h5'))
+        print(f'MEGNet model on the fly saved to {os.path.join(adjacent_model_path, "MEGNetModel__adjacent.h5")}')
         
 class MODNetOmegaFast2024(MODNetOmega2024):
     """This featurizer aims to rapidly screen large datasets by bypassing
